@@ -8,9 +8,23 @@ This action splits a suite of tests files into equally sized buckets, to distrib
 
 To ensure an equivalent distribution of run time between runners, this action can use the timings of a previous run to inform the tests splits (otherwise the line-count of each file is used to estimate the run time). Sub-actions are provided to save and restore the test timings between runs.
 
+## Inputs
+
+- `job-index` (required): index of the current split job (usually `${{ strategy.job-index }}`).
+- `job-total` (required): total number of split jobs (usually `${{ strategy.job-total }}`).
+- `pattern` (optional): a glob pattern of test files to include (by default: `spec/**/*_spec.rb`).
+- `exclude-pattern` (optional): a glob pattern of test files to exclude.
+- `junit-pattern` (optional): a glob pattern to JUnit XML reports to use for test timings (by default: `tmp/*.junit.xml`).
+
+## Outputs
+
+- `tests-subset`: a list of test files to be run for the current job.
+
 ## Usage
 
 ### Basic workflow
+
+Split a test suite between 4 runners, based on file lines count.
 
 ```yaml
 jobs:
@@ -20,7 +34,7 @@ jobs:
       matrix:
         # The number of runners is arbitrary.
         # The test suite will automatically be split between all requested runners.
-        runners: [ 0, 1, 2, 3, 4, 5 ]
+        runners: [ 0, 1, 2, 3 ]
 
     runs-on: ubuntu-latest
     steps:
@@ -39,6 +53,8 @@ jobs:
 ```
 
 ### Advanced workflow, with tests timings save and restoration
+
+Split a test suite between 6 runners, based on test timings of a previous run.
 
 ```yaml
 jobs:
