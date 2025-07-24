@@ -1,0 +1,21 @@
+name: 'Save job test timings'
+description: 'Save the test timings of a single job as an artifact'
+
+inputs:
+  workflow:
+    type: string
+    description: 'Name of the enclosing workflow (to group all the jobs of the same workflow together)'
+    required: true
+  job-index:
+    type: number
+    description: 'Index of this job'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/upload-artifact@v4
+      with:
+        name: artifact-test-report-${{ inputs.workflow }}-${{ inputs.job-index }}
+        path: tmp/rspec_${{ inputs.workflow }}_${{ inputs.job-index }}.junit.xml
+        overwrite: true

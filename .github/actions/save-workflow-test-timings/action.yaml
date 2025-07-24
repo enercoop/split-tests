@@ -1,0 +1,29 @@
+name: 'Save workflow test timings'
+description: 'Collect and save Junit test reports and timing data (to better split future tests)'
+
+inputs:
+  workflow:
+    type: string
+    description: 'Name of the job to collect'
+    required: true
+  pattern:
+    type: string
+    description: 'Glob pattern for the timing reports files'
+    required: false
+    default: 'tmp/*.junit.xml'
+
+runs:
+  using: composite
+  steps:
+    - name: Collect test reports artifacts from all split jobs
+      uses: actions/download-artifact@v4
+      with:
+        path: tmp
+        pattern: artifact-test-report-${{ inputs.workflow }}-* # retrieve artifacts from several jobs in a single pass
+        merge-multiple: true
+
+    - name: Save all collected test reports to the cache
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ inputs.pattern }}
+        key: test-reports-${{ github.ref }}-${{ github.sha }}-${{ github.run_id }}

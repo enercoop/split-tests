@@ -1,0 +1,50 @@
+name: 'split-tests'
+description: 'Split a test suite between equally-timed jobs'
+inputs:
+  job-index:
+    type: number
+    description: 'Index of this job'
+    required: false
+    default: 0
+  job-total:
+    type: number
+    description: 'Total number of jobs'
+    required: false
+    default: 1
+  pattern:
+    type: string
+    description: 'Glob pattern of test files to include'
+    default: 'spec/**/*_spec.rb'
+    required: false
+  exclude-pattern:
+    type: string
+    description: 'Glob pattern of test files to exclude'
+    default: '/some/path/that/will/never/exist'
+    required: false
+  junit-pattern:
+    type: string
+    description: 'Path to JUnit XML reports to use for test timings'
+    default: 'tmp/*.junit.xml'
+    required: false
+
+outputs:
+  tests-subset:
+    description: 'A subset of test files, based on the the job index and total jobs'
+    value: ${{ steps.split-tests.outputs.tests-subset }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install the split_tests binary
+      shell: bash
+      run: |
+        curl --no-progress-meter -L https://github.com/leonid-shevtsov/split_tests/releases/download/v0.4.0/split_tests.linux.gz | gunzip -c > split_tests
+        chmod +x split_tests
+
+    - name: Split the test files
+      id: split-tests
+      shell: bash
+      run: |
+        TESTS_SUBSET=$(./split_tests -glob='${{ inputs.pattern }}' -exclude-glob='${{ inputs.exclude-pattern }}' -split-index=${{ inputs.job-index }} -split-total=${{ inputs.job-total }} -junit -junit-path=${{ inputs.junit-pattern }})
+        echo $TESTS_SUBSET
+        echo "tests-subset=${TESTS_SUBSET}" >> "$GITHUB_OUTPUT"

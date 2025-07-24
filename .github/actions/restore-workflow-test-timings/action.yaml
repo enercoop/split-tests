@@ -1,0 +1,22 @@
+name: 'Restore workflow test timings'
+description: 'Restore test timings of a previous workflow run from the cache'
+
+inputs:
+  pattern:
+    type: string
+    description: 'Glob pattern for the timing reports files'
+    required: false
+    default: 'tmp/*.junit.xml'
+
+runs:
+  using: composite
+  steps:
+    - name: Restore timing reports of a previous run from the cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ inputs.pattern }}
+        key: test-reports-${{ github.ref }}-${{ github.sha }}-${{ github.run_id }}
+        restore-keys: |
+          test-reports-${{ github.ref }}-${{ github.sha }}-
+          test-reports-${{ github.ref }}-
+          test-reports-
