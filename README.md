@@ -31,8 +31,8 @@ jobs:
         id: split-tests
         with:
           pattern: 'spec/**'
-          job-index : ${{strategy.job-index}}
-          job-total : ${{strategy.job-total}}
+          job-index : ${{ strategy.job-index }}
+          job-total : ${{ strategy.job-total }}
 
       - name: 'Run the subset of test files'
         run: bin/rspec ${{ steps.split-tests.outputs.tests-subset }}
