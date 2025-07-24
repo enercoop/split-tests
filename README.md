@@ -64,7 +64,6 @@ jobs:
         id: split-tests
         with:
           pattern: 'spec/**'
-
           job-index : ${{ strategy.job-index }}
           job-total : ${{ strategy.job-total }}
 
